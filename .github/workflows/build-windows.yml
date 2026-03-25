@@ -34,14 +34,19 @@ jobs:
 
       - name: Install Inno Setup
         shell: pwsh
-        run: choco install innosetup -y --no-progress
+        run: |
+          choco install innosetup -y --no-progress
+          $env:PATH = "C:\Program Files (x86)\Inno Setup 6;$env:PATH"
+          iscc /? 2>&1 | Select-Object -First 3
 
       - name: Create installer with Inno Setup
-        shell: cmd
+        shell: pwsh
         run: |
-          for /d %%d in ("C:\Program Files (x86)\Inno Setup*") do set "ISCC=%%d\ISCC.exe"
-          echo Using: %ISCC%
-          "%ISCC%" Installers\windows-installer.iss
+          $env:PATH = "C:\Program Files (x86)\Inno Setup 6;$env:PATH"
+          $output = & iscc Installers\windows-installer.iss 2>&1 | Out-String
+          Write-Host $output
+          "## ISCC Output`n``````n$output``````n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
@@ -50,7 +55,7 @@ jobs:
           path: Installers/Output/GVNRs-Grunger-Installer-v*.exe
 
       - name: Upload raw VST3 (fallback)
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: GVNRs-Grunger-VST3-Raw
