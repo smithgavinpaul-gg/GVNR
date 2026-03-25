@@ -33,7 +33,7 @@ Name: "vst3"; Description: "VST3 Plugin (for FL Studio, Ableton, etc.)"; Types: 
 Name: "standalone"; Description: "Standalone Application"; Types: full custom
 
 [Files]
-Source: "..\build\TheGVNR_artefacts\Release\VST3\GVNRs Grunger.vst3\*"; DestDir: "{commoncf}\VST3\GVNRs Grunger.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\TheGVNR_artefacts\Release\VST3\GVNRs Grunger.vst3\*"; DestDir: "{cf}\VST3\GVNRs Grunger.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\build\TheGVNR_artefacts\Release\Standalone\GVNRs Grunger.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 
 [Icons]
