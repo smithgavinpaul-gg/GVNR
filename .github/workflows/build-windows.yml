@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,17 +26,37 @@ jobs:
         run: cmake --build build --config Release
 
       - name: List build artifacts
-        run: dir build\TheGVNR_artefacts\Release /s /b
-        shell: cmd
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse build/TheGVNR_artefacts/Release | Select-Object FullName
+
+      - name: Find Inno Setup
+        id: inno
+        shell: pwsh
+        run: |
+          $iscc = Get-ChildItem "C:\Program Files (x86)\Inno Setup*" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $iscc) {
+            Write-Host "Inno Setup not found, installing via choco..."
+            choco install innosetup -y --no-progress
+            $iscc = Get-ChildItem "C:\Program Files (x86)\Inno Setup*" -Filter ISCC.exe -Recurse | Select-Object -First 1
+          }
+          Write-Host "ISCC found at: $($iscc.FullName)"
+          "iscc_path=$($iscc.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Create installer with Inno Setup
-        run: >-
-          "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
-          Installers\windows-installer.iss
-        shell: cmd
+        shell: pwsh
+        run: |
+          & "${{ steps.inno.outputs.iscc_path }}" /V9 Installers\windows-installer.iss
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
           name: GVNRs-Grunger-Windows-Installer
           path: Installers/Output/GVNRs-Grunger-Installer-v*.exe
+
+      - name: Upload raw VST3 (fallback)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GVNRs-Grunger-VST3-Raw
+          path: build/TheGVNR_artefacts/Release/VST3/
