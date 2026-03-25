@@ -25,8 +25,13 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
+      - name: List build artifacts
+        run: dir build\TheGVNR_artefacts\Release /s /b
+        shell: cmd
+
       - name: Create installer with Inno Setup
-        run: iscc Installers/windows-installer.iss
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" Installers/windows-installer.iss
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
