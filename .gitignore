@@ -1,0 +1,9 @@
+build/
+Installers/Output/
+Installers/staging/
+Installers/*.pkg
+Installers/distribution.xml
+Installers/welcome.txt
+.DS_Store
+*.user
+CMakeUserPresets.json
