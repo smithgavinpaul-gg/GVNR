@@ -9,7 +9,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
-DefaultDirName={autopf}\GVNR Audio\GVNRs Grunger
+DefaultDirName={pf}\GVNR Audio\GVNRs Grunger
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=GVNRs-Grunger-Installer-v{#MyAppVersion}
@@ -17,7 +17,8 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
-ArchitecturesInstallMode=x64compatible
+ArchitecturesAllowed=x64
+ArchitecturesInstallMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

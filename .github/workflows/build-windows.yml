@@ -32,33 +32,16 @@ jobs:
           Write-Host $listing
           "## Build Artifacts`n``````n$listing``````n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
-      - name: Find Inno Setup
-        id: inno
+      - name: Install Inno Setup
         shell: pwsh
-        run: |
-          $iscc = Get-ChildItem "C:\Program Files (x86)\Inno Setup*" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $iscc) {
-            Write-Host "Inno Setup not found, installing via choco..."
-            choco install innosetup -y --no-progress
-            $iscc = Get-ChildItem "C:\Program Files (x86)\Inno Setup*" -Filter ISCC.exe -Recurse | Select-Object -First 1
-          }
-          Write-Host "ISCC found at: $($iscc.FullName)"
-          "iscc_path=$($iscc.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-
-      - name: Verify installer sources exist
-        shell: pwsh
-        run: |
-          $vst3 = "build\TheGVNR_artefacts\Release\VST3\GVNRs Grunger.vst3"
-          $exe  = "build\TheGVNR_artefacts\Release\Standalone\GVNRs Grunger.exe"
-          Write-Host "Checking VST3 at: $vst3"
-          if (Test-Path $vst3) { Write-Host "  Found" } else { Write-Host "  MISSING"; Get-ChildItem "build\TheGVNR_artefacts\Release\VST3\" -ErrorAction SilentlyContinue }
-          Write-Host "Checking Standalone at: $exe"
-          if (Test-Path $exe) { Write-Host "  Found" } else { Write-Host "  MISSING"; Get-ChildItem "build\TheGVNR_artefacts\Release\Standalone\" -ErrorAction SilentlyContinue }
+        run: choco install innosetup -y --no-progress
 
       - name: Create installer with Inno Setup
-        shell: pwsh
+        shell: cmd
         run: |
-          & "${{ steps.inno.outputs.iscc_path }}" Installers\windows-installer.iss
+          for /d %%d in ("C:\Program Files (x86)\Inno Setup*") do set "ISCC=%%d\ISCC.exe"
+          echo Using: %ISCC%
+          "%ISCC%" Installers\windows-installer.iss
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
