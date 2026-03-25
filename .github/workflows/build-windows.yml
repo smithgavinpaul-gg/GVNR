@@ -28,7 +28,9 @@ jobs:
       - name: List build artifacts
         shell: pwsh
         run: |
-          Get-ChildItem -Recurse build/TheGVNR_artefacts/Release | Select-Object FullName
+          $listing = Get-ChildItem -Recurse build/TheGVNR_artefacts | Select-Object -ExpandProperty FullName | Out-String
+          Write-Host $listing
+          "## Build Artifacts`n``````n$listing``````n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
       - name: Find Inno Setup
         id: inno
@@ -42,6 +44,16 @@ jobs:
           }
           Write-Host "ISCC found at: $($iscc.FullName)"
           "iscc_path=$($iscc.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Verify installer sources exist
+        shell: pwsh
+        run: |
+          $vst3 = "build\TheGVNR_artefacts\Release\VST3\GVNRs Grunger.vst3"
+          $exe  = "build\TheGVNR_artefacts\Release\Standalone\GVNRs Grunger.exe"
+          Write-Host "Checking VST3 at: $vst3"
+          if (Test-Path $vst3) { Write-Host "  Found" } else { Write-Host "  MISSING"; Get-ChildItem "build\TheGVNR_artefacts\Release\VST3\" -ErrorAction SilentlyContinue }
+          Write-Host "Checking Standalone at: $exe"
+          if (Test-Path $exe) { Write-Host "  Found" } else { Write-Host "  MISSING"; Get-ChildItem "build\TheGVNR_artefacts\Release\Standalone\" -ErrorAction SilentlyContinue }
 
       - name: Create installer with Inno Setup
         shell: pwsh
