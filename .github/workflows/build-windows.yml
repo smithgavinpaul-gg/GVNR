@@ -58,7 +58,7 @@ jobs:
       - name: Create installer with Inno Setup
         shell: pwsh
         run: |
-          & "${{ steps.inno.outputs.iscc_path }}" /V9 Installers\windows-installer.iss
+          & "${{ steps.inno.outputs.iscc_path }}" Installers\windows-installer.iss
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
